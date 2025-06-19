@@ -114,7 +114,7 @@ jobs:
       - run:
           name: Terraform Init/Apply
           command: |
-            cd infra/aws
+            cd infrastructure/aws
             terraform init
             terraform apply -auto-approve
 

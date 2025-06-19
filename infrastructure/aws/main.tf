@@ -48,22 +48,16 @@ provider "helm" {
     host       = module.eks.cluster_name
     cluster_ca_certificate = base64decode(module.eks.cluster_ca)
     token      = module.eks.cluster_token
+  }
 }
 
 module "argocd" {
-  source              = "./modules/argocd"
+  source              = "./module/argocd"
   argo_namespace      = var.argo_namespace
   argocd_helm_version = var.argocd_helm_version
   github_repo_url     = var.dasmlab_live_cicd_repo
   ghcr_pat            = var.ghcr_pat
 }
 
-module "argocd_endpoint" {
-  value = module.argocd.argocd_server_url
-}
 
-output "eks_kubeconfig" {
-  value = module.eks.kubeconfig
-  sensitive = true
-}
 		

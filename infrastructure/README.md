@@ -1,6 +1,6 @@
 ## Infrastructure Setup
 
-This folder is the base Terraform workflow that we use. 
+This folder is the base Terraform workflow that we use in differnet Cloud Providres and with different SCM Reconciliers (ArgoCD in this case)
 
 
 # Goal: 
