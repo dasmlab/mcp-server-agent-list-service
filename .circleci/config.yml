@@ -82,7 +82,7 @@ jobs:
           command: |
             TAG="ghcr.io/dasmlab/mcp-server-agent-list-service:${CIRCLE_SHA1:0:8}"
             sudo docker tag ${IMAGE_TAG} ${TAG}
-            echo "${GHCR_PAT}" | sudo docker login ghcr.io -u lmcdasm --password-stdin
+            echo "${GHCR_PAT}" | sudo docker login ghcr.io -u git --password-stdin
             sudo docker push ${TAG}
 
       # Teardown
