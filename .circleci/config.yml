@@ -1,15 +1,32 @@
 version: 2.1
 
-orbs:
-  kaniko: crispy-collective/kaniko@1.2.2
+jobs:
+  build-and-push:
+    docker:
+      - image: cimg/base:stable  # Has /bin/sh and all normal tooling!
+    environment:
+      IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
+    steps:
+      - checkout
+      - run:
+          name: Create Docker Auth Config
+          command: |
+            mkdir -p /tmp/kaniko/.docker
+            echo "{\"auths\":{\"ghcr.io\":{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DASMLAB_GHCR_PAT}\"}}}" > /tmp/kaniko/.docker/config.json
+      - run:
+          name: Build & Push with Kaniko
+          command: |
+            docker run --rm \
+              -v $PWD:/workspace \
+              -v /tmp/kaniko/.docker:/kaniko/.docker \
+              gcr.io/kaniko-project/executor:latest \
+              --context=dir:///workspace \
+              --dockerfile=/workspace/Dockerfile \
+              --destination=ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} \
+              --cache=true
 
 workflows:
   build-and-push:
     jobs:
-      - kaniko/build:
-          dockerfile: Dockerfile
-          context: .
-          registry: ghcr.io
-          repo: dasmlab/mcp-server-agent-list-service
-          tag: << pipeline.git.revision >>
+      - build-and-push
 
