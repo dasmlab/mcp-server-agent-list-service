@@ -1,4 +1,4 @@
-# MCP Server Agent Scraper
+# MCP Server Agent List Service
 
 A minimal FastAPI microservice that manages and exposes a queue of MCP Server Agents, supporting both on-prem and cloud deployment actions. Designed for Kubernetes-native environments (with MetalLB support).
 
