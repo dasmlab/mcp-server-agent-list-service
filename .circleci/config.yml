@@ -4,7 +4,6 @@ jobs:
   build-and-push:
     docker:
       - image: quay.io/buildah/stable
-    resource_class: dasmlab/Default   # <-- This matches your runner setup!
     environment:
       IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
     steps:
