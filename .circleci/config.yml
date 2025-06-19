@@ -1,42 +1,9 @@
-# MCP Server Agent List Service CX Pipeline Config
-
 version: 2.1
 
 executors:
   k8s-agent:
     docker:
-      - image: cimg/base:stable  # Can be any image with curl, envsubst, kubectl, etc.
-
-# Here we define our docker build commands within Kaniko
-# Requires ENV Vars (Context) for DASMLAB_GCHR_PAT
-#  and DOCKER_REGISTRY, DOCKER_USER and DOCKER_PASS
-commands:
-  kaniko-build:
-    description: "Build and push Docker image with Kaniko"
-    parameters:
-      image_tag:
-        type: string
-      dockerfile:
-        type: string
-        default: Dockerfile
-      context:
-        type: string
-        default: .
-    steps:
-      - run:
-          name: Kaniko Build and Push
-          command: |
-            mkdir -p /kaniko/.docker
-            echo "{\"auths\":{\"${DOCKER_REGISTRY}\":{\"username\":\"${DOCKER_USER}\",\"password\":\"${DOCKER_PASS}\"}}}" > /kaniko/.docker/config.json
-
-            # Kaniko runs as a container - launch it using Docker-in-Docker or as a K8s pod (CircleCI injects the executor)
-            /kaniko/executor \
-              --context {{parameters.context}} \
-              --dockerfile {{parameters.dockerfile}} \
-              --destination ${DOCKER_REGISTRY}/dasmlab-home:<<parameters.image_tag>> \
-              --cache=true
-        docker:
-          - image: gcr.io/kaniko-project/executor:latest
+      - image: gcr.io/kaniko-project/executor:latest  # Just use the Kaniko image directly
 
 jobs:
   build-and-push:
@@ -52,6 +19,10 @@ jobs:
             echo "export COMMIT_ID=$(git rev-parse --short HEAD)" >> $BASH_ENV
             echo "export VERSION_TAG=v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> $BASH_ENV
 
-      - kaniko-build:
-          image_tag: "${IMAGE_TAG}"
+      - run:
+          name: Kaniko Build and Push
+          command: |
+            mkdir -p /kaniko/.docker
+            echo "{\"auths\":{\"${DOCKER_REGISTRY}\":{\"username\":\"${DOCKER_USER}\",\"password\":\"${DASMLAB_GHCR_PAT}\"}}}" > /kaniko/.docker/config.json
+            /kaniko/executor --context $PWD --dockerfile $PWD/Dockerfile --destination ${DOCKER_REGISTRY}/dasmlab-home:${IMAGE_TAG} --cache=true
 
