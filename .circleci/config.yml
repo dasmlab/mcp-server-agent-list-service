@@ -27,7 +27,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            sudo docker build -t test:latest .
+            sudo docker build -t ${IMAGE_TAG}
 
       # Run Phase - Create Network, start container and Healtcheck
       - run:
