@@ -6,9 +6,16 @@ jobs:
     resource_class: dasmlab/docker
     steps:
       - checkout
-      - run: id
-      - run: groups
-      - run: ls -l /var/run/docker.sock
+      - run
+          name: Ensure docker group exists with GID 999 
+          command: |
+          if ! grep -q "^docker:" /etc/group; then
+             echo "docker:x:999:circleci" | sudo tee -a /etc/group
+          fi
+          sudo usermod -aG docker circleci || true
+          id 
+          groups
+          ls -l /var/run/docker.sock
       - run:
           name: Build Docker image
           command: |
