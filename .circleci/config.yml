@@ -1,13 +1,29 @@
 version: 2.1
 
-orbs:
-  docker: circleci/docker@2.2.0
+jobs:
+  build-and-push:
+    docker:
+      - image: gcr.io/kaniko-project/executor:latest
+    environment:
+      IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
+    steps:
+      - checkout
+      - run:
+          name: Setup Auth for GHCR
+          command: |
+            mkdir -p /kaniko/.docker
+            echo "{\"auths\":{\"ghcr.io\":{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DASMLAB_GHCR_PAT}\"}}}" > /kaniko/.docker/config.json
+      - run:
+          name: Build & Push with Kaniko
+          command: |
+            /kaniko/executor \
+              --context $PWD \
+              --dockerfile $PWD/Dockerfile \
+              --destination ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} \
+              --cache=true
 
 workflows:
   build-and-push:
     jobs:
-      - docker/publish:
-          image: ghcr.io/dasmlab/mcp-server-agent-list-service
-          tag: << pipeline.git.revision >>
-          registry: ghcr.io
-          resource_class: default
+      - build-and-push
+
