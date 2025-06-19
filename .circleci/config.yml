@@ -4,10 +4,13 @@ jobs:
   build-and-push:
     docker:
       - image: quay.io/buildah/stable
-    environment:
-      IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
     steps:
       - checkout
+      - run:
+          name: Set IMAGE_TAG
+          command: |
+            export IMAGE_TAG=$(echo $CIRCLE_SHA1 | cut -c1-8)
+            echo "export IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
       - run:
           name: Login to GHCR
           command: |
