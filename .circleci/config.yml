@@ -10,3 +10,4 @@ workflows:
           image: ghcr.io/dasmlab/mcp-server-agent-list-service
           tag: << pipeline.git.revision >>
           registry: ghcr.io
+          resource_class: default
