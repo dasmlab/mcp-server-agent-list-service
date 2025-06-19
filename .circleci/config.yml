@@ -1,28 +1,25 @@
 version: 2.1
 
-executors:
-  k8s-agent:
-    docker:
-      - image: gcr.io/kaniko-project/executor:latest  # Just use the Kaniko image directly
+orbs:
+  docker: circleci/docker@2.2.0
 
 jobs:
-  build-and-push:
-    executor: k8s-agent
-    environment:
-      IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
+  build-and-publish:
+    docker:
+      - image: cimg/base:stable
     steps:
       - checkout
-
       - run:
-          name: Set Build Metadata
+          name: Set Docker Password Env Var
           command: |
-            echo "export COMMIT_ID=$(git rev-parse --short HEAD)" >> $BASH_ENV
-            echo "export VERSION_TAG=v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)" >> $BASH_ENV
+            echo 'export DOCKER_PASSWORD="$DASMLAB_GHCR_PAT"' >> $BASH_ENV
+      - docker/publish:
+          image: ghcr.io/dasmlab/mcp-server-agent-list-service
+          tag: << pipeline.git.revision >>
+          registry: ghcr.io
 
-      - run:
-          name: Kaniko Build and Push
-          command: |
-            mkdir -p /kaniko/.docker
-            echo "{\"auths\":{\"${DOCKER_REGISTRY}\":{\"username\":\"${DOCKER_USER}\",\"password\":\"${DASMLAB_GHCR_PAT}\"}}}" > /kaniko/.docker/config.json
-            /kaniko/executor --context $PWD --dockerfile $PWD/Dockerfile --destination ${DOCKER_REGISTRY}/dasmlab-home:${IMAGE_TAG} --cache=true
+workflows:
+  build-and-push:
+    jobs:
+      - build-and-publish
 
