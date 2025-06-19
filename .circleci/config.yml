@@ -6,7 +6,7 @@ jobs:
     resource_class: dasmlab/docker
     steps:
       - checkout
-      - run
+      - run:
           name: Ensure docker group exists with GID 999 
           command: |
           if ! grep -q "^docker:" /etc/group; then
