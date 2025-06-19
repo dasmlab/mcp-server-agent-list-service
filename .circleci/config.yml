@@ -16,11 +16,16 @@ jobs:
       - run:
           name: Set env vars for this job
           command: |
+
+            export SHORT_SHA=${CIRCLE_SHA1:0:8}" 
+            export NETWORK_NAME=dasmlab-circleci-net-${SHORT_SHA}" 
+            export IMAGE_TAG=mcpsa-list-service:latest" 
+            export CONTAINER_NAME=mcpsa-list-service-${SHORT_SHA}"
+
             echo "export SHORT_SHA=${CIRCLE_SHA1:0:8}" >> $BASH_ENV
             echo "export NETWORK_NAME=dasmlab-circleci-net-${SHORT_SHA}" >> $BASH_ENV
             echo "export IMAGE_TAG=mcpsa-list-service:latest" >> $BASH_ENV
             echo "export CONTAINER_NAME=mcpsa-list-service-${SHORT_SHA}" >> $BASH_ENV
-
             echo "NETWORK_NAME=$NETWORK_NAME"
             echo "IMAGE_TAG=$IMAGE_TAG"
             echo "CONTAINER_NAME=$CONTAINER_NAME"
@@ -39,6 +44,9 @@ jobs:
       - run:
           name: Start up Target Build in Isolated Network and Healthcheck
           command: |
+            echo "ENV"
+            env
+            echo "ENV END"
             sudo docker network create ${NETWORK_NAME}
             sudo docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
             sudo docker run -d --name ${CONTAINER_NAME} --network ${NETWORK_NAME} ${IMAGE_TAG}
