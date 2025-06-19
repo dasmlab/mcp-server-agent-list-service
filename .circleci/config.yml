@@ -6,6 +6,9 @@ jobs:
     resource_class: dasmlab/docker
     steps:
       - checkout
+      - run: whomai
+      - run: id
+      - run: groups
       - run:
           name: Build Docker image
           command: |
