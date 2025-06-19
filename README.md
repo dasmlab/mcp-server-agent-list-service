@@ -2,7 +2,9 @@
 
 A minimal FastAPI microservice that manages and exposes a queue of MCP Server Agents, supporting both on-prem and cloud deployment actions. Designed for Kubernetes-native environments (with MetalLB support).
 
-This project implements CircleCI Workflow and is connected to a K8s Container-Agent.  The values.yaml and example to set up the agent can be found at https://github.com/lmcdasm/oneshots/install-circle-ci-runner
+This project implements CircleCI Workflow and is connected to both a K8s Container-Agent Resource Class and a Docker-in-Docker Extended CircleCI instance. Allowing us to do docker'ish stuff and K8s stuff in our workflow/pipeline at the same time via the Resource_classes (dasmlab/default, and dasmlab/docker). 
+
+Instalation scripts for both can be found at https://github.com/lmcdasm/oneshots/install-circle-ci-runner
 
 ---
 
