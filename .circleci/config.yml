@@ -16,7 +16,7 @@ jobs:
       - run:
           name: Set env vars for this job
           command: |
-            export SHORT_SHA=${CIRCLECI_SHA1:0:8} >> $BASH_ENV
+            export SHORT_SHA=${CIRCLE_SHA1:0:8} >> $BASH_ENV
             export NETWORK_NAME="dasmlab-circleci-net-${SHORT_SHA}" >> $BASH_ENV
             export IMAGE_TAG="mcpsa-list-service:latest" >> $BASH_ENV
             export CONTAINER_NAME="mcpsa-list-service-${SHORT_SHA}" >> $BASH_ENV
