@@ -6,6 +6,11 @@ This project implements CircleCI Workflow and is connected to both a K8s Contain
 
 Instalation scripts for both can be found at https://github.com/lmcdasm/oneshots/install-circle-ci-runner
 
+Deployments are handling via three workflows:
+ - cx-build-pipline - this builds the container, starts it locally on an isolated Docker network and then runs the Security and Testing suites and publishes a conatiner
+ - cx-staging-pipeline - this takes the built container (cx-build-pipeline) and deploys this on a static, staging cluster where KUBECONFIG is know
+ - cx-production-pipeline - this first uses a AWS terraform modules to deploy an EKS setup and then deploys our appplciations to it.
+
 ---
 
 ## Framework
@@ -86,3 +91,6 @@ Optional: add authentication and more detailed status reporting
 
 # License
 See [LICENSE.md](./LICENSE.md)
+
+CI BUMP
+

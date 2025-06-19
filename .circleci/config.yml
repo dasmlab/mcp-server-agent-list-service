@@ -114,7 +114,7 @@ jobs:
       - run:
           name: Terraform Init/Apply
           command: |
-            cd infra/aws
+            cd infrastructure/aws
             terraform init
             terraform apply -auto-approve
 
@@ -178,6 +178,10 @@ workflows:
   build-target:
     jobs:
       - cx-build-pipeline
+
+  deploy-aws-env:
+    jobs:
+      - setup-prod-aws
 
   staging-pipeline:
     jobs:

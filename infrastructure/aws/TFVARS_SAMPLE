@@ -1,0 +1,21 @@
+#  This is an example of dev.auto.tfvars (.gitignored in the this project) 
+#   for what you can set/declare overall
+# AWS / EKS / VPC Variables
+aws_region         = "us-east-1"
+aws_profile        = "dasmlab"
+vpc_cidr_block     = "10.42.0.0/16"
+eks_cluster_name   = "dasmlab-local-test-eks"
+eks_node_count     = 1
+
+# GitHub Repo for ArgoCD/Flux
+#   Change to your target SCM (wher eyou ahve your live manifests for deployment)
+dasmlab_live_cicd_repo    = "https://github.com/dasmlab/dasmlab_live_cicd.git"
+
+# GHCR PAT (GitHub Container Registry Personal Access Token)
+#  You have to put this string in there
+ghcr_pat           = ""
+
+# (Optional) ArgoCD/Helm chart settings
+argocd_namespace   = "argocd"
+argocd_chart_version = "6.7.12"   # Or whatever version you want
+
