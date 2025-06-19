@@ -4,24 +4,22 @@ jobs:
   cx-pipeline:
     machine: true
     resource_class: dasmlab/docker
-    environment:
-      IMAGE_TAG: "mcpsa-list-service:latest"
-      NETWORK_NAME: "dasmlab-circleci-net-${CIRCLE_SHA1:0:8}"
-      CONTAINER_NAME: "dasmlab-app-${CIRCLE_SHA1:0:8}"
     steps:
       - checkout
 
-      # Fix Docker group/permissions (doesnt work yet)
+      # Set ENV Vars (since envrionment doesnt expand sub vars)
       - run:
-          name: Ensure docker group exists with GID 999 
+          name: Set env vars for this job
           command: |
-            if ! grep -q "^docker:" /etc/group; then
-               echo "docker:x:999:circleci" | sudo tee -a /etc/group
-            fi
-            sudo usermod -aG docker circleci || true
-            id 
-            groups
-            ls -l /var/run/docker.sock
+            export SHORT_SHA=${CIRCLECI_SHA1:0:8} >> $BASH_ENV
+            export NETWORK_NAME="dasmlab-circleci-net-${SHORT_SHA}" >> $BASH_ENV
+            export IMAGE_TAG="mcpsa-list-service:latest" >> $BASH_ENV
+            export CONTAINER_NAME="dasmlab-app-${SHORT_SHA}" >> $BASH_ENV
+
+            echo "NETWORK_NAME=$NETWORK_NAME"
+            echo "IMAGE_TAG=$IMAGE_TAG"
+            echo "CONTAINER_NAME=$CONTAINER_NAME"
+            echo "SHORT_SHA=$SHORT_SHA"
 
       # Build Phase - Create our Target Container
       - run:
