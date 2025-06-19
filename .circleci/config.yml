@@ -1,28 +1,14 @@
 version: 2.1
 
 jobs:
-  build-and-push:
+  build:
     docker:
-      - image: quay.io/buildah/stable
+      - image: test-build-image
+    resource_class: dasmlab/Docker
     steps:
       - checkout
-      - run:
-          name: Set IMAGE_TAG
-          command: |
-            export IMAGE_TAG=$(echo $CIRCLE_SHA1 | cut -c1-8)
-            echo "export IMAGE_TAG=$IMAGE_TAG" >> $BASH_ENV
-      - run:
-          name: Login to GHCR
-          command: |
-            buildah login -u $DOCKER_USERNAME -p $DASMLAB_GHCR_PAT ghcr.io
-      - run:
-          name: Build Container Image
-          command: |
-            buildah bud -t ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} .
-      - run:
-          name: Push Image
-          command: |
-            buildah push ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG}
+      - run: docker version
+
 
 workflows:
   build-and-push:
