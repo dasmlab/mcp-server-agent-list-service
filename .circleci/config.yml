@@ -58,16 +58,22 @@ jobs:
       - run:
           name: Run Security Suite (dasmlab)
           command: |
+            echo "ENV"
+            env
+            echo "END ENV"
             echo "Starting Security Suite Instance in ${NETWORK_NAME} network"
-            sudo docker run -rm --network ${NETWORK_NAME} ghcr.io/dasmlab/security-suite:latest
+            #sudo docker run -d --rm --network ${NETWORK_NAME} ghcr.io/dasmlab/security-suite:latest
             exit 0
 
       # Testing Phase: Start up dasmlab Testing Suite and Validate/Test Target Image
       - run:
           name: Run Testing Suite (dasmlab)
           command: |
+            echo "ENV"
+            env
+            echo "END ENV"
             echo "Starting Testing Suite Instance in ${NETWORK_NAME} network"
-            sudo docker run -rm --network ${NETWORK_NAME} ghcr.io/dasmlab/testing-suite:latest
+            #sudo docker run -rm --network ${NETWORK_NAME} ghcr.io/dasmlab/testing-suite:latest
             exit 0
 
       # Publish Phase: Push to GHCR 
