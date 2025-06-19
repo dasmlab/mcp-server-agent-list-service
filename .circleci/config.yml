@@ -52,7 +52,7 @@ jobs:
             sudo docker run -d --name ${CONTAINER_NAME} --network ${NETWORK_NAME} ${IMAGE_TAG}
             # Simple sleep to wait for start, can be improved! ;)
             sleep 5
-            sudo docker exec ${CONTAINER_NAME} curl -f http://localhost:80 || (echo "Basic Healthcheck Failed" && exit 1)
+            sudo docker exec ${CONTAINER_NAME} curl -f http://localhost:8000/isalive || (echo "Basic Healthcheck Failed" && exit 1)
 
       # Secure Phase: Start up dasmlab Security Suite and Scan/Evaluate Target Image
       - run:

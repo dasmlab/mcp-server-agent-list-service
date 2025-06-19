@@ -14,6 +14,7 @@ app = FastAPI(
 agents: List[MCPServerAgent] = []
 
 
+## DECLARE OUR API ROUTES
 # get the servers list, or optionally, if ?id=xxx is passed, return just the one 
 @app.get("/servers")
 def list_servers(id: Optional[str] = Query(None)):
@@ -38,4 +39,8 @@ def delete_server(id: str = Query(...)):
             return {"status": "deleted"}
     raise HTTPException(status_code=404, detail="MCP Server Agent not found with that ID")
 
+
+@app.get("/isalive")
+def isalive():
+    return {"status", "alive"}
 
