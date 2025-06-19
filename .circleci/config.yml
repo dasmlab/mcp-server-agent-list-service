@@ -3,15 +3,9 @@ version: 2.1
 jobs:
   build:
     docker:
-      - image: test-build-image
+      - image: your-build-image
     resource_class: dasmlab/Docker
     steps:
       - checkout
       - run: docker version
-
-
-workflows:
-  build:
-    jobs:
-      - build
 
