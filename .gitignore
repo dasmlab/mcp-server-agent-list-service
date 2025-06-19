@@ -1,3 +1,24 @@
+# Terraform State files
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Sensitive variable files
+*.tfvars
+infrastructure/*.tfvars
+*.auto.tfvars
+infrastructure/*.auto.tfvars
+
+# Terraform plan files
+*.tfplan
+
+# .terraform dir (local provider/plugins and cache)
+.terraform/
+.terraform.lock.hcl
+
+# Backup files
+*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
