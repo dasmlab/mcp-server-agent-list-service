@@ -15,7 +15,8 @@ jobs:
       - run:
           name: Build Container Image
           command: |
-            buildah bud -t ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} .
+            export STORAGE_DRIVER=vfs
+            buildah --storage-driver vfs bud -t ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} .
       - run:
           name: Push Image
           command: |
