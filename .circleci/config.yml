@@ -1,20 +1,15 @@
 version: 2.1
 
 orbs:
-  kaniko: circleci/kaniko@1.2.7
+  kaniko: crispy-collective/kaniko@1.2.2
 
 workflows:
   build-and-push:
     jobs:
-      - kaniko/build-and-push:
-          # Path to your Dockerfile, relative to repo root:
+      - kaniko/build:
           dockerfile: Dockerfile
-          # Build context (usually root):
           context: .
-          # Target image (use your repo/project naming):
-          image: ghcr.io/dasmlab/mcp-server-agent-list-service:<< pipeline.git.revision >>
-          # Auth info is taken from standard Docker environment variables:
-          #   DOCKER_USERNAME (your GitHub username)
-          #   DOCKER_PASSWORD (your GitHub/GHCR token)
-          # Set these in CircleCI Project Settings > Environment Variables!
+          registry: ghcr.io
+          repo: dasmlab/mcp-server-agent-list-service
+          tag: << pipeline.git.revision >>
 
