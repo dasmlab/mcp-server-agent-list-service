@@ -18,14 +18,14 @@ jobs:
           command: |
 
             export SHORT_SHA=${CIRCLE_SHA1:0:8}" 
-            export NETWORK_NAME=dasmlab-circleci-net-${SHORT_SHA}" 
+            export NETWORK_NAME=dasmlab-circleci-net-${CIRCLE_SHA1:0:8}" 
             export IMAGE_TAG=mcpsa-list-service:latest" 
             export CONTAINER_NAME=mcpsa-list-service-${SHORT_SHA}"
 
             echo "export SHORT_SHA=${CIRCLE_SHA1:0:8}" >> $BASH_ENV
-            echo "export NETWORK_NAME=dasmlab-circleci-net-${SHORT_SHA}" >> $BASH_ENV
+            echo "export NETWORK_NAME=dasmlab-circlenet-${CIRCLE_SHA1:0:8}" >> $BASH_ENV
             echo "export IMAGE_TAG=mcpsa-list-service:latest" >> $BASH_ENV
-            echo "export CONTAINER_NAME=mcpsa-list-service-${SHORT_SHA}" >> $BASH_ENV
+            echo "export CONTAINER_NAME=mcpsa-list-service-${CIRCLE_SHA1:0:8}" >> $BASH_ENV
             echo "NETWORK_NAME=$NETWORK_NAME"
             echo "IMAGE_TAG=$IMAGE_TAG"
             echo "CONTAINER_NAME=$CONTAINER_NAME"
