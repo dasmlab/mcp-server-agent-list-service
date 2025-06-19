@@ -3,23 +3,10 @@ version: 2.1
 orbs:
   docker: circleci/docker@2.2.0
 
-jobs:
-  build-and-publish:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - run:
-          name: Set Docker Password Env Var
-          command: |
-            echo 'export DOCKER_PASSWORD="$DASMLAB_GHCR_PAT"' >> $BASH_ENV
+workflows:
+  build-and-push:
+    jobs:
       - docker/publish:
           image: ghcr.io/dasmlab/mcp-server-agent-list-service
           tag: << pipeline.git.revision >>
           registry: ghcr.io
-
-workflows:
-  build-and-push:
-    jobs:
-      - build-and-publish
-
