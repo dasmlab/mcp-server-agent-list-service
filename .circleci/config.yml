@@ -177,23 +177,24 @@ jobs:
 workflows:
   build-target:
     jobs:
-      - cx-pipeline
+      - cx-build-pipeline
+
   staging-pipeline:
     jobs:
-      - cx-pipeline
+      - cx-build-pipeline
       - cx-staging:
           requires:
-            - cx-pipeline
+            - cx-build-pipeline
           filters:
             branches:
               only: staging
 
   production-pipeline:
     jobs:
-      - cx-pipeline
+      - cx-build-pipeline
       - setup-prod-aws:
           requires:
-            - cx-pipeline
+            - cx-build-pipeline
           filters:
             branches:
               only: prod
