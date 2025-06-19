@@ -1,11 +1,17 @@
 version: 2.1
 
 jobs:
-  docker-build:
+  cx-pipeline:
     machine: true
     resource_class: dasmlab/docker
+    environment:
+      IMAGE_TAG: "mcpsa-list-service:latest"
+      NETWORK_NAME: "dasmlab-circleci-net-${CIRCLE_SHA1:0:8}"
+      CONTAINER_NAME: "dasmlab-app-${CIRCLE_SHA1:0:8}"
     steps:
       - checkout
+
+      # Fix Docker group/permissions (doesnt work yet)
       - run:
           name: Ensure docker group exists with GID 999 
           command: |
@@ -16,13 +22,59 @@ jobs:
             id 
             groups
             ls -l /var/run/docker.sock
+
+      # Build Phase - Create our Target Container
       - run:
           name: Build Docker image
           command: |
             sudo docker build -t test:latest .
 
+      # Run Phase - Create Network, start container and Healtcheck
+      - run:
+          name: Start up Target Build in Isolated Network and Healthcheck
+          command: |
+            sudo docker network create ${NETWORK_NAME}
+            sudo docker rm -f ${CONTAINER_NAME} 2>/dev/null || true
+            sudo docker run -d --name ${CONTAINER_NAME} --network ${NETWORK_NAME} ${IMAGE_TAG}
+            # Simple sleep to wait for start, can be improved! ;)
+            sleep 5
+            sudo docker exec ${CONTAINER_NAME} curl -f http://localhost:80 || (echo "Basic Healthcheck Failed" && exit 1)
+
+      # Secure Phase: Start up dasmlab Security Suite and Scan/Evaluate Target Image
+      - run:
+          name: Run Security Suite (dasmlab)
+          command: |
+            echo "Starting Security Suite Instance in ${NETWORK_NAME} network"
+            sudo docker run -rm --network ${NETWORK_NAME} ghcr.io/dasmlab/security-suite:latest
+            exit 0
+
+      # Testing Phase: Start up dasmlab Testing Suite and Validate/Test Target Image
+      - run:
+          name: Run Testing Suite (dasmlab)
+          command: |
+            echo "Starting Testing Suite Instance in ${NETWORK_NAME} network"
+            sudo docker run -rm --network ${NETWORK_NAME} ghcr.io/dasmlab/testing-suite:latest
+            exit 0
+
+      # Publish Phase: Push to GHCR 
+      - run:
+          name: Publish Image to GHCR
+          command: |
+            TAG="ghcr.io/dasmlab/mcp-server-agent-list-service:${CIRCLE_SHA1:0:8}"
+            sudo docker tag ${IMAGE_TAG} ${TAG}
+            echo "${GHCR_PAT}" | sudo docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            sudo docker push ${TAG}
+
+      # Teardown
+      - run:
+          name: Cleanup containers and network
+          command: |
+            sudo docker rm -f ${CONTAINER_NAME} || true
+            sudo docker network rm ${NETWORK_NAME} || true
+
+
 workflows:
   build-and-test:
     jobs:
-      - docker-build
+      - cx-pipeline
 
