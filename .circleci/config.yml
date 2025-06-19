@@ -30,7 +30,9 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            echo "IMAGE_TAG=${IMAGE_TAG}"
+            echo "ENV"
+            env
+            echo "END ENV"
             sudo docker build -t ${IMAGE_TAG} .
 
       # Run Phase - Create Network, start container and Healtcheck
