@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  cx-pipeline:
+  cx-build-pipeline:
     machine: true
     resource_class: dasmlab/docker
     steps:
@@ -95,9 +95,111 @@ jobs:
             sudo docker rm -f ${CONTAINER_NAME} || true
             sudo docker network rm ${NETWORK_NAME} || true
 
+      # Save IMAGE_TAG for Downstream WOrkflows
+      - run:
+          name: Save IMAGE_TAG for downstream Workflows
+          command: |
+            echo "ghcr.io/dasmlab/mcp-server-agent-list-service:${CIRCLE_SHA1:0:8}" > image_tag.txt
+      - persist_to_workspace:
+          root: .
+          paths:
+            - image_tag.txt
+
+  # - Stage up a Production AWS Cluster, VPC and setup
+  setup-prod-aws:
+    docker:
+      - image: hashicorp/terraform:latest
+    steps:
+      - checkout
+      - run:
+          name: Terraform Init/Apply
+          command: |
+            cd infra/aws
+            terraform init
+            terraform apply -auto-approve
+
+  # Stage the Appliation + Security And Testing to Staging Cluster (known KUBECONFIG)
+  cx-staging-pipeline:
+    machine: true
+    resource_class: dasmlab/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+
+      - run:
+          name: Load IMAGE_TAG from upstream workflows
+          command: |
+            export IMAGE_TAG=$(cat image_tag.txt)
+            echo "Deploying $IMAGE_TAG to STAGING K8s Cluster"
+            # Substitue IMAGE_TAG in your manifest
+            envsubst < k8s_envelope/mcpsa-list-service_deploy.yaml > deploy.yaml
+            # Setup K8s configuration path
+            export KUBECONFIG=/staging.kubeconfig
+            # Deploy our new manifest
+            kubectl apply -f deploy.yaml
+      - run:
+          name: Deploy Security and Testing Suite 
+          command: |
+            # Example: deploy manifests for security and testing suites
+            kubectl apply -f k8s_envelope/security_suite.yaml
+            kubectl apply -f k8s_envelope/testing_suite.yaml
+            # Add wait/checks here later
+
+
+      
+  cx-production-pipeline:
+    machine: true
+    resource_class: dasmlab/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load IMAGE_TAG From upstream build pipeline
+          command: |
+            export IMAGE_TAG=$(cat image_tag.txt)
+            echo "Deploying $IMAGE_TAG to PRODUCTION K8s (AWS)"
+            #Substitute in IMAGE_TAG in manifest
+            envsubst < k8s_envelope/mcpsa-list-service_deploy.yaml > deploy.yaml
+            # Setup KUBECONFIG or authenticate via previous step (Terraform output)?)
+            export KUBECONFIG=/production.kubeconfig
+      # Security and Testing Suite Deployment
+      - run:
+          name: Deploy Security Suite and Test Suite
+          command: |
+            kubectl apply -f k8s_envelope/security-suite.yaml
+            kubectl apply -f k8s_envelope/testing-suite.yaml
+
+          # add waits and checks later
+
 
 workflows:
-  build-and-test:
+  build-target:
     jobs:
       - cx-pipeline
+  staging-pipeline:
+    jobs:
+      - cx-pipeline
+      - cx-staging:
+          requires:
+            - cx-pipeline
+          filters:
+            branches:
+              only: staging
 
+  production-pipeline:
+    jobs:
+      - cx-pipeline
+      - setup-prod-aws:
+          requires:
+            - cx-pipeline
+          filters:
+            branches:
+              only: prod
+      - cx-production:
+          requires:
+            - setup-prod-aws
+          filters:
+            branches:
+              only: prod
