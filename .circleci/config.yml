@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  build-and-push:
     docker:
       - image: test-build-image
     resource_class: dasmlab/Docker
