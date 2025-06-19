@@ -3,6 +3,8 @@ version: 2.1
 jobs:
   docker-build:
     machine: true
+    docker:
+      - image: ubuntu:22.04
     resource_class: dasmlab/docker
     steps:
       - checkout
