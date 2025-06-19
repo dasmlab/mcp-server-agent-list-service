@@ -182,7 +182,7 @@ workflows:
   staging-pipeline:
     jobs:
       - cx-build-pipeline
-      - cx-staging:
+      - cx-staging-pipeline:
           requires:
             - cx-build-pipeline
           filters:
@@ -198,7 +198,7 @@ workflows:
           filters:
             branches:
               only: prod
-      - cx-production:
+      - cx-production-pipeline:
           requires:
             - setup-prod-aws
           filters:
