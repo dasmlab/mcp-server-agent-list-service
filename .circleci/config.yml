@@ -7,6 +7,11 @@ jobs:
     steps:
       - checkout
 
+      # Debug/Learn - Print all the Circle CI var
+      - run:
+          name: Print all CircleCI Env Vars
+          command: env | grep -i CIRCLE
+
       # Set ENV Vars (since envrionment doesnt expand sub vars)
       - run:
           name: Set env vars for this job
@@ -14,7 +19,7 @@ jobs:
             export SHORT_SHA=${CIRCLECI_SHA1:0:8} >> $BASH_ENV
             export NETWORK_NAME="dasmlab-circleci-net-${SHORT_SHA}" >> $BASH_ENV
             export IMAGE_TAG="mcpsa-list-service:latest" >> $BASH_ENV
-            export CONTAINER_NAME="dasmlab-app-${SHORT_SHA}" >> $BASH_ENV
+            export CONTAINER_NAME="mcpsa-list-service-${SHORT_SHA}" >> $BASH_ENV
 
             echo "NETWORK_NAME=$NETWORK_NAME"
             echo "IMAGE_TAG=$IMAGE_TAG"
@@ -25,7 +30,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            sudo docker build -t ${IMAGE_TAG} .
+            sudo docker build -t $IMAGE_TAG .
 
       # Run Phase - Create Network, start container and Healtcheck
       - run:
