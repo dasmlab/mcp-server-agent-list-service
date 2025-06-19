@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       - image: your-build-image
-    resource_class: dasmlab/Docker
+    resource_class: dasmlab/docker
     steps:
       - checkout
       - run: docker version
