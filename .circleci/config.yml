@@ -4,8 +4,7 @@ jobs:
   build-and-push:
     docker:
       - image: quay.io/buildah/stable
-        # For true rootless, you might try non-privileged, but privileged is safest/easiest
-        # If your runner is not privileged, you may need to add capabilities and tweak storage.
+    resource_class: dasmlab/Default   # <-- This matches your runner setup!
     environment:
       IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
     steps:
