@@ -81,9 +81,11 @@ jobs:
           name: Publish Image to GHCR
           command: |
             TAG="ghcr.io/dasmlab/mcp-server-agent-list-service:${CIRCLE_SHA1:0:8}"
-            docker tag ${IMAGE_TAG} ${TAG}
-            echo "${GHCR_PAT}" | docker login ghcr.io -u git --password-stdin
-            docker push ${TAG}
+            echo "${GHCR_PAT}" > /tmp/ghcr_pat.txt
+            sudo docker login ghcr.io -u git --password-stdin < /tmp/ghcr_pat.txt
+            rm /tmp/ghcr_pat.txt
+            sudo docker tag ${IMAGE_TAG} ${TAG}
+            sudo docker push ${TAG}
 
       # Teardown
       - run:
