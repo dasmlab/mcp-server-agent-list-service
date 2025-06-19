@@ -1,32 +1,20 @@
 version: 2.1
 
-jobs:
-  build-and-push:
-    docker:
-      - image: cimg/base:stable  # Has /bin/sh and all normal tooling!
-    environment:
-      IMAGE_TAG: "${CIRCLE_SHA1:0:8}"
-    steps:
-      - checkout
-      - run:
-          name: Create Docker Auth Config
-          command: |
-            mkdir -p /tmp/kaniko/.docker
-            echo "{\"auths\":{\"ghcr.io\":{\"username\":\"${DOCKER_USERNAME}\",\"password\":\"${DASMLAB_GHCR_PAT}\"}}}" > /tmp/kaniko/.docker/config.json
-      - run:
-          name: Build & Push with Kaniko
-          command: |
-            docker run --rm \
-              -v $PWD:/workspace \
-              -v /tmp/kaniko/.docker:/kaniko/.docker \
-              gcr.io/kaniko-project/executor:latest \
-              --context=dir:///workspace \
-              --dockerfile=/workspace/Dockerfile \
-              --destination=ghcr.io/dasmlab/mcp-server-agent-list-service:${IMAGE_TAG} \
-              --cache=true
+orbs:
+  kaniko: circleci/kaniko@1.2.7
 
 workflows:
   build-and-push:
     jobs:
-      - build-and-push
+      - kaniko/build-and-push:
+          # Path to your Dockerfile, relative to repo root:
+          dockerfile: Dockerfile
+          # Build context (usually root):
+          context: .
+          # Target image (use your repo/project naming):
+          image: ghcr.io/dasmlab/mcp-server-agent-list-service:<< pipeline.git.revision >>
+          # Auth info is taken from standard Docker environment variables:
+          #   DOCKER_USERNAME (your GitHub username)
+          #   DOCKER_PASSWORD (your GitHub/GHCR token)
+          # Set these in CircleCI Project Settings > Environment Variables!
 
